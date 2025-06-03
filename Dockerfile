@@ -1,24 +1,23 @@
-# -------- IMAGE DE BASE MINIMALE --------
 FROM python:3.10-slim
 
-# PyMuPDF a besoin de quelques librairies système
+# Bibliothèques système nécessaires à PyMuPDF
 RUN apt-get update && \
     apt-get install -y libglib2.0-0 libgl1-mesa-glx && \
     rm -rf /var/lib/apt/lists/*
 
-# -------- VARIABLES D’ENVIRONNEMENT --------
+WORKDIR /app
+
+# Variables d’environnement
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV PORT=8000   # Azure Container Apps lira ce port
+ENV PORT=5000               # Port écouté par Flask dans app.py
 
-# -------- DÉPENDANCES PYTHON --------
-WORKDIR /app
+# Dépendances Python
 COPY backend/app/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# -------- COPIE DU CODE --------
+# Copie du code applicatif
 COPY backend/app /app
 
-# -------- COMMAND START --------
-# lance l'appli Flask en production avec gunicorn
-CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:8000", "app:app"]
+# Démarrage de l’application (2 workers Gunicorn)
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app", "-w", "2"]
