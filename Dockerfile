@@ -13,4 +13,4 @@ COPY . /app
 
 ENV PORT=10000
 
-CMD ["gunicorn", "app:app", "-w", "2", "-b", "0.0.0.0:$PORT"]
+CMD gunicorn app:app -w 2 -b 0.0.0.0:$PORT
